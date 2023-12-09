@@ -1,0 +1,69 @@
+name: dockercompose8901116630712789269
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: administration_database
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+    image: postgres:latest
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5432"
+        protocol: tcp
+  reactapp:
+    build:
+      context: C:\Users\asus\Desktop\DEVOPS_Task\WebAPI
+      dockerfile: ../ReactSamplePage/react_log_page/Dockerfile
+    image: reactapp
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3000"
+        protocol: tcp
+  webapi:
+    build:
+      context: C:\Users\asus\Desktop\DEVOPS_Task\WebAPI
+      dockerfile: WebAPI/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_started
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      ConnectionStrings__DefaultConnection: Host=postgres;Database=administration_database;Username=postgres;Password=password
+    image: webapi
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 80
+        protocol: tcp
+      - mode: ingress
+        target: 80
+        published: "5000"
+        protocol: tcp
+      - mode: ingress
+        target: 443
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: C:\Users\asus\AppData\Roaming/Microsoft/UserSecrets
+        target: /root/.microsoft/usersecrets
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\asus\AppData\Roaming/ASP.NET/Https
+        target: /root/.aspnet/https
+        read_only: true
+        bind:
+          create_host_path: true
+networks:
+  default:
+    name: dockercompose8901116630712789269_default
