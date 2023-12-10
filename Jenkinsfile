@@ -4,6 +4,8 @@ pipeline {
     environment {
         GITHUB_REPO = 'https://github.com/jana-srour/Log_Page_API.git'
         DOCKER_REGISTRY = 'janasrour99'
+        JENKINS_ENVIRONMENT = 'true'
+		KUBE_NAMESPACE = 'default' 
     }
 
     stages {
@@ -55,6 +57,15 @@ pipeline {
 
                     // Push Docker images to registry
                     bat "docker-compose push"
+                }
+            }
+        }
+		
+		stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Deploy to Kubernetes using kubectl apply
+                    bat "kubectl apply -f log-app-deployment.yaml -n ${KUBE_NAMESPACE}"
                 }
             }
         }
